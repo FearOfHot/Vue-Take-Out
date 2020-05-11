@@ -24,6 +24,8 @@ router.beforeEach((to, from, next) => {
       next();
     }
 
+
+
     // if (to.meta.requireAuth) {
     //   if (store.state.user.username || store.state.admin.username) {
     //     next()
