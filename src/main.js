@@ -14,7 +14,6 @@ Vue.use(ElementUI)
 
 router.beforeEach((to, from, next) => {
     document.title = `杭电协同点餐系统`;
-    debugger
     const role = localStorage.getItem('username');
     if (!role && to.path !== '/login') {
       next('/login');

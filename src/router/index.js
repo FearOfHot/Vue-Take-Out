@@ -4,6 +4,8 @@ import Router from 'vue-router'
 import AppIndex from '@/components/home/AppIndex'
 import Login from '@/components/views/Login'
 import A from "@/components/views/A"
+import Side from "@/components/home/Side"
+import Head from "@/components/home/Head"
 
 Vue.use(Router)
 
@@ -33,6 +35,32 @@ export default new Router({
       path: '/a',
       name: 'A',
       component: A
+    },
+    {
+      path: '/side',
+      name: 'Side',
+      component: Side
+    },
+    {
+      path: '/head',
+      name: 'Head',
+      component: Head
+    },
+    {
+      path: '/home',
+      meta:{ title: '自诉文件' },
+      children: [
+        {
+          path: '/table',
+          component: () => import('../components/views/Table.vue'),
+          meta: { title: '菜单' }
+        },
+        {
+          path: '/order',
+          component: () => import('../components/views/Order.vue'),
+          meta: { title: '订单' }
+        },
+      ]
     }
   ]
 })
