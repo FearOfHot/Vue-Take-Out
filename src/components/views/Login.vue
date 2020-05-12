@@ -51,8 +51,11 @@
                                 if (successResponse.data.code === 200) {
                                     // this.$store.commit('userLogin', this.loginForm)
                                     localStorage.setItem('username', this.loginForm.username);
+                                    successResponse.data.obj.admin=false;
+                                    localStorage.setItem('isAdmin', successResponse.data.obj.admin);
+                                    localStorage.setItem('loginInfo', JSON.stringify(successResponse.data.obj));
                                     this.$message.success('登录成功');
-                                    this.$router.push('/user/index')
+                                    this.$router.push('index')
                                     // var path = this.$route.query.redirect
                                     // this.$router.replace({path: path === '/' || path === undefined ? '/index' : path})
                                 } else {
@@ -77,13 +80,14 @@
                                 password: this.loginForm.password
                             })
                             .then(successResponse => {
-                                debugger
                                 if (successResponse.data.code === 200) {
                                     // this.$store.commit('adminLogin', this.loginForm)
                                     localStorage.setItem('username', this.loginForm.username);
-                                    localStorage.setItem('userinfo', JSON.stringify(successResponse.data.obj));
+                                    successResponse.data.obj.admin=true;
+                                    localStorage.setItem('isAdmin', successResponse.data.obj.admin);
+                                    localStorage.setItem('loginInfo', JSON.stringify(successResponse.data.obj));
                                     this.$message.success('登录成功');
-                                    this.$router.push('/admin/index')
+                                    this.$router.push('indexAdmin')
                                     // var path = this.$route.query.redirect
                                     // this.$router.replace({path: path === '/' || path === undefined ? '/index' : path})
                                 } else {

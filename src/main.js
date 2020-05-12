@@ -11,17 +11,17 @@ Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 import "@/assets/css/index.css"
-// router.beforeEach((to, from, next) => {
-//     document.title = `杭电协同点餐系统`;
-//     const role = localStorage.getItem('username');
-//     if (!role && to.path !== '/login') {
-//       next('/login');
-//     } else if (to.path === '/') {
-//       next('/login')
-//     } else {
-//       next();
-//     }
-
+router.beforeEach((to, from, next) => {
+  document.title = `杭电协同点餐系统`;
+  const role = localStorage.getItem('username');
+  if (!role && to.path !== '/login') {
+    next('/login');
+  } else if (to.path === '/') {
+    next('/login')
+  } else {
+    next();
+  }
+});
 
 
 //     // if (to.meta.requireAuth) {

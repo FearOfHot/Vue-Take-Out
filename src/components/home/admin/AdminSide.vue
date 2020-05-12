@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+<!--  <div class="sidebar">-->
     <el-menu
       class="sidebar-el-menu"
       :default-active="onRoutes"
@@ -46,7 +46,7 @@
         </template>
       </template>
     </el-menu>
-  </div>
+<!--  </div>-->
 </template>
 
 <script>
@@ -58,17 +58,17 @@
                 items: [
                     {
                         icon: 'el-icon-lx-home',
-                        index: 'index',
+                        index: 'indexAdmin',
                         title: '首页'
                     },
                     {
                         icon: 'el-icon-lx-cascades',
-                        index: 'dish',
+                        index: 'dishAdmin',
                         title: '菜单'
                     },
                     {
                         icon: 'el-icon-lx-cascades',
-                        index: 'order',
+                        index: 'orderAdmin',
                         title: '订单'
                     },
                 ]

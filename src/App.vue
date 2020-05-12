@@ -2,15 +2,21 @@
   <div id="app">
      <Head v-if="$route.name!='Login'" />
     <el-container style="height: calc(100vh - 70px);">
-      <UserSide v-if="$route.name!='Login'" />
-      <UserSide v-else-if="$route.name!='AdminIndex'" />
-      <!-- <AdminSide v-if="$route.name!='Login'" />
-      <AdminSide v-else-if="$route.name!='UserIndex'" /> -->
-      <el-main>
+
+      <template v-if="$route.name.indexOf('Admin')==-1">
+        <UserSide v-if="$route.name!='Login'" />
+        <UserSide v-else-if="$route.name!='AdminIndex' && $route.name!='Login'" />
+      </template>
+      <template v-else>
+        <AdminSide v-if="$route.name!='Login'" />
+        <AdminSide v-else-if="$route.name!='UserIndex' && $route.name!='Login'" />
+      </template>
+
+
+      <el-main >
         <router-view />
       </el-main>
     </el-container>
-
   </div>
 </template>
 

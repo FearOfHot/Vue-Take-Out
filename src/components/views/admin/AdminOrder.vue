@@ -1,12 +1,12 @@
 <template>
-<div>
-    购物车
-</div>
+    <div>
+      管理订单
+    </div>
 </template>
 
 <script>
     export default {
-        name: "Cart"
+        name: "AdminOrder"
     }
 </script>
 

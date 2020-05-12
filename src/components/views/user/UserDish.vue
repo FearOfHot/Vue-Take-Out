@@ -1,12 +1,12 @@
 <template>
 <div>
-    配送信息
+    菜单
 </div>
 </template>
 
 <script>
     export default {
-        name: "Info"
+        name: "UserDish"
     }
 </script>
 

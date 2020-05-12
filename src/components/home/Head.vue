@@ -35,13 +35,13 @@
             return {
                 collapse: false,
                 fullscreen: false,
-                name: 'linxin',
+                name: '用户',
                 message: 2
             };
         },
         computed: {
             username() {
-                let username = localStorage.getItem('ms_username');
+                let username = JSON.parse(localStorage.getItem('loginInfo')).name;
                 return username ? username : this.name;
             }
         },
@@ -49,7 +49,14 @@
             // 用户名下拉菜单选择事件
             handleCommand(command) {
                 if (command == 'loginout') {
-                    localStorage.removeItem('ms_username');
+                    localStorage.removeItem('username');
+                    if (localStorage.getItem('isAdmin')) {
+                        this.$axios
+                            .post('/admin/logout', {})
+                    } else {
+                        this.$axios
+                            .post('/user/logout', {})
+                    }
                     this.$router.push('/login');
                 }
             },

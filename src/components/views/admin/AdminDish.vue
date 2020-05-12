@@ -1,12 +1,12 @@
 <template>
     <div>
-        订单
+      管理菜单
     </div>
 </template>
 
 <script>
     export default {
-        name: "Order"
+        name: "AdminDish"
     }
 </script>
 
