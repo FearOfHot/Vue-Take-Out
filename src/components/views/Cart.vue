@@ -1,12 +1,12 @@
 <template>
 <div>
-    菜单
+    购物车
 </div>
 </template>
 
 <script>
     export default {
-        name: "Dish"
+        name: "Cart"
     }
 </script>
 

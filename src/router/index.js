@@ -59,21 +59,47 @@ export default new Router({
       component: Head
     },
     {
-      path: '/home',
-      meta:{ title: '自诉文件' },
-      children: [
-        {
-          path: '/dish',
-          component: () => import('../components/views/Dish.vue'),
-          meta: { title: '菜单' }
-        },
-        {
-          path: '/order',
-          component: () => import('../components/views/Order.vue'),
-          meta: { title: '订单' }
-        },
-      ]
+      path: '/dish',
+      name: 'dish',
+      component: () => import('../components/views/Dish.vue'),
+      meta: { title: '菜单' }
+    },
+    {
+            path: '/order',
+            name: 'order',
+            component: () => import('../components/views/Order.vue'),
+            meta: { title: '订单' }
+    },
+    {
+            path: '/cart',
+            name: 'orcartder',
+            component: () => import('../components/views/Cart.vue'),
+            meta: { title: '订单' }
+    },
+    {
+            path: '/info',
+            name: 'info',
+            component: () => import('../components/views/Info.vue'),
+            meta: { title: '订单' }
     }
+    // {
+    //   path: '/home',
+    //   meta:{ title: '自诉文件' },
+    //   children: [
+    //     {
+    //       path: '/dish',
+    //       name: 'dish',
+    //       component: () => import('../components/views/Dish.vue'),
+    //       meta: { title: '菜单' }
+    //     },
+    //     {
+    //       path: '/order',
+    //       name: 'order',
+    //       component: () => import('../components/views/Order.vue'),
+    //       meta: { title: '订单' }
+    //     },
+    //   ]
+    // }
   ]
 })
 

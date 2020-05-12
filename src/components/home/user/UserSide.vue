@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+  <!-- <div class="sidebar"> -->
     <el-menu
       class="sidebar-el-menu"
       :default-active="onRoutes"
@@ -46,7 +46,7 @@
         </template>
       </template>
     </el-menu>
-  </div>
+  <!-- </div> -->
 </template>
 
 <script>
