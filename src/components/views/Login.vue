@@ -52,7 +52,7 @@
                                     // this.$store.commit('userLogin', this.loginForm)
                                     localStorage.setItem('username', this.loginForm.username);
                                     this.$message.success('登录成功');
-                                    this.$router.push('/index')
+                                    this.$router.push('/user/index')
                                     // var path = this.$route.query.redirect
                                     // this.$router.replace({path: path === '/' || path === undefined ? '/index' : path})
                                 } else {
@@ -67,8 +67,6 @@
                         return false;
                     }
                 });
-
-
             },
             adminLogin () {
                 this.$refs.login.validate(valid => {
@@ -79,11 +77,13 @@
                                 password: this.loginForm.password
                             })
                             .then(successResponse => {
+                                debugger
                                 if (successResponse.data.code === 200) {
                                     // this.$store.commit('adminLogin', this.loginForm)
                                     localStorage.setItem('username', this.loginForm.username);
+                                    localStorage.setItem('userinfo', JSON.stringify(successResponse.data.obj));
                                     this.$message.success('登录成功');
-                                    this.$router.push('/index')
+                                    this.$router.push('/admin/index')
                                     // var path = this.$route.query.redirect
                                     // this.$router.replace({path: path === '/' || path === undefined ? '/index' : path})
                                 } else {
@@ -98,7 +98,6 @@
                         return false;
                     }
                 });
-
             }
         }
     }

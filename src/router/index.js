@@ -4,8 +4,10 @@ import Router from 'vue-router'
 import AppIndex from '@/components/home/AppIndex'
 import Login from '@/components/views/Login'
 import A from "@/components/views/A"
-import Side from "@/components/home/Side"
+import UserSide from "@/components/home/user/UserSide"
 import Head from "@/components/home/Head"
+import AdminIndex from "@/components/home/admin/AdminIndex"
+import UserIndex from "@/components/home/user/UserIndex"
 
 Vue.use(Router)
 
@@ -24,6 +26,16 @@ export default new Router({
       component: Login
     },
     {
+      path: 'admin/index',
+      name: 'AdminIndex',
+      component: AdminIndex,
+    },
+    {
+      path: 'user/index',
+      name: 'UserIndex',
+      component: UserIndex,
+    },
+    {
       path: '/index',
       name: 'AppIndex',
       component: AppIndex,
@@ -37,9 +49,9 @@ export default new Router({
       component: A
     },
     {
-      path: '/side',
-      name: 'Side',
-      component: Side
+      path: '/user/side',
+      name: 'UserSide',
+      component: UserSide
     },
     {
       path: '/head',
@@ -51,8 +63,8 @@ export default new Router({
       meta:{ title: '自诉文件' },
       children: [
         {
-          path: '/table',
-          component: () => import('../components/views/Table.vue'),
+          path: '/dish',
+          component: () => import('../components/views/Dish.vue'),
           meta: { title: '菜单' }
         },
         {
