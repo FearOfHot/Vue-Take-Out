@@ -20,18 +20,26 @@
           prop="phone">
         </el-table-column>
         <el-table-column
+          label="校区"
+          prop="school">
+        </el-table-column>
+        <el-table-column
+          label="配送区域"
+          prop="region">
+        </el-table-column>
+        <el-table-column
           label="收货地址"
           prop="address">
         </el-table-column>
         <el-table-column
           align="right">
           <template slot="header" slot-scope="scope">
-            <el-button size="mini" @click="addItem()">新增配送地址</el-button>
+            <el-button type="primary" size="mini" @click="addItem()">新增配送地址</el-button>
           </template>
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="handleEdit(scope.$index, scope.row)">编辑
+              @click="editItem(scope)">编辑
             </el-button>
             <el-button
               size="mini"
@@ -45,7 +53,7 @@
 
     <div>
       <template>
-        <el-dialog title="新增配送信息" :visible.sync="addVisible" custom-class="dialog">
+        <el-dialog title="新增配送信息" :visible.sync="addVisible">
           <el-form :model="form">
             <el-form-item label="收货人姓名" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
@@ -72,6 +80,40 @@
           <div slot="footer" class="dialog-footer">
             <el-button @click="addVisible = false">取 消</el-button>
             <el-button type="primary" @click="addDeliveryInfo">确 定</el-button>
+          </div>
+        </el-dialog>
+      </template>
+    </div>
+
+    <div>
+      <template>
+        <el-dialog title="编辑配送信息" :visible.sync="editVisible">
+          <el-form :model="form">
+            <el-form-item label="收货人姓名" :label-width="formLabelWidth">
+              <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
+            </el-form-item>
+            <el-form-item label="收货人电话" :label-width="formLabelWidth">
+              <el-input v-model="form.phone" autocomplete="off" style="width:130px;"></el-input>
+            </el-form-item>
+            <el-form-item label="校区" :label-width="formLabelWidth">
+              <el-select v-model="form.school" placeholder="请选择活动区域">
+                <el-option label="杭电下沙主校区" value="杭电下沙主校区"></el-option>
+                <el-option label="杭电青山湖校区" value="杭电青山湖校区"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="配送区域" :label-width="formLabelWidth">
+              <el-select v-model="form.region" placeholder="请选择活动区域">
+                <el-option label="教学区" value="教学区"></el-option>
+                <el-option label="生活区" value="生活区"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="具体地址" :label-width="formLabelWidth">
+              <el-input v-model="form.address" autocomplete="off"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="editVisible = false">取 消</el-button>
+            <el-button type="primary" @click="editDeliveryInfo">确 定</el-button>
           </div>
         </el-dialog>
       </template>
@@ -111,6 +153,7 @@
                 },
                 formLabelWidth: '120px',
                 addVisible: false,
+                editVisible: false,
                 deleteVisible: false,
                 tableData: [],
                 deleteIndex: -1
@@ -120,8 +163,16 @@
             addItem() {
               this.addVisible = true;
             },
+            editItem(scope) {
+              this.editIndex = scope.row.id;
+              this.editVisible = true;
+              this.form.name = scope.row.name;
+              this.form.phone = scope.row.phone;
+              this.form.school = scope.row.school;
+              this.form.region = scope.row.region;
+              this.form.address = scope.row.address;
+            },
             deleteItem(scope) {
-                debugger
                 this.deleteIndex = scope.row.id;
                 this.deleteVisible = true;
             },
@@ -139,14 +190,27 @@
                 this.$axios
                     .post('/delivery/info/save', {
                         name: this.form.name,
-                        address: this.form.school + this.form.region + this.form.address,
+                        school: this.form.school,
+                        region: this.form.region,
+                        address: this.form.address,
                         phone: this.form.phone
                     }).then(() => {
                         this.queryDeliveryInfo()
                 })
             },
             editDeliveryInfo() {
-
+              this.editVisible = false;
+              this.$axios
+                .post('/delivery/info/save', {
+                    id: JSON.parse(this.editIndex),
+                    name: this.form.name,
+                    school: this.form.school,
+                    region: this.form.region,
+                    address: this.form.address,
+                    phone: this.form.phone
+                }).then(() => {
+                this.queryDeliveryInfo()
+              })
             },
             deleteDeliveryInfo() {
                 this.deleteVisible = false;
@@ -166,8 +230,8 @@
 </script>
 
 <style scoped>
-  /deep/ .dialog{
-      width: 30%;
-      height: 53%;
-    }
+  /*/deep/ .dialog{*/
+      /*width: 30%;*/
+      /*height: 53%;*/
+    /*}*/
 </style>

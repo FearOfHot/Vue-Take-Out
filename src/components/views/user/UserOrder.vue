@@ -6,103 +6,127 @@
         <span>订单</span>
       </el-card>
     </div>
-    <div class="line">
-      <el-select v-model="value" placeholder="请选择">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value">
-        </el-option>
-      </el-select>
-    </div>
-    <div class="line">
-      <el-row>
-        <el-button type="primary" icon="el-icon-search">搜索</el-button>
-      </el-row>
-    </div>
+
     <div class="operate-container">
       <el-table
-        :data="tableData"
-        border
-        style="width: 100%"
-      >
+        :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+        style="width: 100%">
         <el-table-column
-          prop="number"
           label="订单编号"
-          width="200">
+          prop="number">
         </el-table-column>
         <el-table-column
-          prop="name"
-          label="收货人姓名"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="phone"
-          label="收货人电话"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="收货人地址"
-          width="200">
-        </el-table-column>
-        <el-table-column
-          prop="price"
-          label="金额"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          prop="remark"
           label="订单备注"
-          width="200">
+          prop="remark">
         </el-table-column>
         <el-table-column
-          prop="createTime"
-          label="下单时间"
-          width="200">
+          label="创建订单时间"
+          prop="createTime">
         </el-table-column>
         <el-table-column
-          prop="updateTime"
-          label="更新订单时间"
-          width="200">
+          label="金额/元"
+          prop="price">
         </el-table-column>
         <el-table-column
-          prop="status"
-          label="订单状态"
-          width="80">
+          label="状态"
+          prop="status">
         </el-table-column>
+
         <el-table-column
-          prop="evaluate"
-          label="订单评价"
-          width="300">
+          align="right">
+          <template slot="header" slot-scope="scope" class="line">
+            <div>
+              <el-select v-model="value" size="mini" placeholder="请选择订单状态">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </div>
+            <div>
+              <el-row>
+                <el-button type="primary" size="mini" icon="el-icon-search">搜索</el-button>
+              </el-row>
+            </div>
+          </template>
+
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="queryOrderDetails(scope)">订单详情
+            </el-button>
+          </template>
         </el-table-column>
       </el-table>
+    </div>
+    <div>
+      <el-dialog
+        title="订单详情"
+        :visible.sync="dialogVisible"
+        width="30%"
+        :before-close="handleClose">
+
+        <span>这是一段信息</span>
+        <span v-model="details.name"></span>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">关 闭</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-    export default {
-        name: "UserOrder",
-        data() {
-            return {
-                tableData: []
-            }
+  export default {
+    name: "UserOrder",
+    data() {
+      return {
+        value: '',
+        options: [{
+          value: '选项1',
+          label: '无效订单'
+        }, {
+          value: '选项2',
+          label: '未付款'
+        }, {
+          value: '选项3',
+          label: '已付款'
+        }, {
+          value: '选项4',
+          label: '配送中'
+        }, {
+          value: '选项5',
+          label: '已完成'
+        }],
+        details: {
+          name: '',
+          phone: '',
+          address: '',
         },
-        methods: {
-            queryOrder() {
-                this.$axios
-                    .post('/order/query', {}).then((result) => {
-                    this.tableData = result.data.obj;
-                })
+        dialogVisible: false,
+        tableData: []
+      }
+    },
+    methods: {
+      queryOrder() {
+        this.$axios
+          .post('/order/query', {}).then((result) => {
+          this.tableData = result.data.obj;
+        })
 
-            }
-        },
-        mounted() {
-            this.queryOrder()
-        }
+      },
+      queryOrderDetails(scope) {
+        this.dialogVisible = true;
+        this.details.name = scope.row.name;
+      }
+    },
+    mounted() {
+      this.queryOrder()
     }
+  }
 </script>
 
 <style scoped>

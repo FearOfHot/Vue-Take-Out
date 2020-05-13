@@ -19,7 +19,7 @@
           prop="desc">
         </el-table-column>
         <el-table-column
-          label="单价"
+          label="单价/元"
           prop="price">
         </el-table-column>
         <el-table-column
