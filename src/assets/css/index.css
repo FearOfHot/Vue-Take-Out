@@ -5,3 +5,8 @@ body{
 .el-main{
   padding: 0;
 }
+.operate-container {
+  margin-top: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+}

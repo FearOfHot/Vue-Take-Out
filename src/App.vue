@@ -3,7 +3,7 @@
      <Head v-if="$route.name!='Login'" />
     <el-container style="height: calc(100vh - 70px);">
 
-      <template v-if="$route.name.indexOf('Admin')==-1">
+      <template v-if="($route.name+'').indexOf('Admin')==-1">
         <UserSide v-if="$route.name!='Login'" />
         <UserSide v-else-if="$route.name!='AdminIndex' && $route.name!='Login'" />
       </template>

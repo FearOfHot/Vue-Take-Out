@@ -8,10 +8,6 @@
     <div class="logo">杭电协同点餐系统</div>
     <div class="header-right">
       <div class="header-user-con">
-        <!-- 用户头像 -->
-        <div class="user-avator">
-<!--          <img src="../../assets/img/img.jpg" />-->
-        </div>
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
@@ -19,8 +15,9 @@
                         <i class="el-icon-caret-bottom"></i>
                     </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>用户信息</el-dropdown-item>
-            <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
+            <el-dropdown-item divided>个人信息</el-dropdown-item>
+            <el-dropdown-item divided command="changePassword">修改密码</el-dropdown-item>
+            <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -29,6 +26,7 @@
 </template>
 <script>
     import bus from './bus';
+
     export default {
         name: "Head",
         data() {
@@ -46,11 +44,17 @@
             }
         },
         methods: {
+            // 侧边栏折叠
+            collapseChage() {
+                this.collapse = !this.collapse;
+                bus.$emit('collapse', this.collapse);
+            },
             // 用户名下拉菜单选择事件
             handleCommand(command) {
-                if (command == 'loginout') {
+                if (command == 'logout') {
                     localStorage.removeItem('username');
-                    if (localStorage.getItem('isAdmin')) {
+                    localStorage.removeItem('loginInfo');
+                    if (JSON.parse(localStorage.getItem('isAdmin'))) {
                         this.$axios
                             .post('/admin/logout', {})
                     } else {
@@ -58,14 +62,36 @@
                             .post('/user/logout', {})
                     }
                     this.$router.push('/login');
+                } else if (command == 'changePassword') {
+                    this.$prompt('请输入新密码', '修改密码', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消'
+                    }).then(({value}) => {
+                        if (JSON.parse(localStorage.getItem('isAdmin'))) {
+                            this.$axios
+                                .post('/admin/password/change', {
+                                    password : value
+                                })
+                        } else {
+                            this.$axios
+                                .post('/user/password/change', {
+                                    password : value
+                                })
+                        }
+                        this.$message({
+                            type: 'success',
+                            message: '修改成功'
+                        });
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '取消修改'
+                        });
+                    });
                 }
             },
-            // 侧边栏折叠
-            collapseChage() {
-                this.collapse = !this.collapse;
-                bus.$emit('collapse', this.collapse);
-            },
         },
+
         mounted() {
             if (document.body.clientWidth < 1500) {
                 this.collapseChage();
@@ -74,7 +100,6 @@
     };
 </script>
 <style scoped>
-
 
 
   .header {
@@ -86,38 +111,46 @@
     color: #fff;
     background-color: #242f42;
   }
+
   .collapse-btn {
     float: left;
     padding: 0 21px;
     cursor: pointer;
     line-height: 70px;
   }
+
   .header .logo {
     float: left;
     width: 250px;
     line-height: 70px;
   }
+
   .header-right {
     float: right;
     padding-right: 50px;
   }
+
   .header-user-con {
     display: flex;
     height: 70px;
     align-items: center;
   }
+
   .user-name {
     margin-left: 10px;
   }
+
   .user-avator {
     margin-left: 20px;
   }
+
   .user-avator img {
     display: block;
     width: 40px;
     height: 40px;
     border-radius: 50%;
   }
+
   .el-dropdown-link {
     color: #fff;
     cursor: pointer;
