@@ -10,7 +10,8 @@
     <div class="operate-container">
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-        style="width: 100%">
+        style="width: 100%"
+        height="560px">
         <el-table-column
           label="收货人姓名"
           prop="name">

@@ -10,11 +10,13 @@
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
-        height="700">
+        height="480">
         <el-table-column
           label="菜品图片"
           prop="dishUrl"
-          width="80px">
+          width="100px">
+          <template slot-scope="scope"><img style="height: 80px; width: 80px" :src="scope.row.dishUrl">{{scope.row.dishUrl}}
+          </template>
         </el-table-column>
         <el-table-column
           label="菜名"
@@ -30,7 +32,8 @@
           prop="dishNumber"
           align="center">
           <template slot-scope="scope">
-            <el-input-number size="mini" v-model="scope.row.dishNumber" @change="handleChange(scope)" :min="1" :max="99" label="描述文字"></el-input-number>
+            <el-input-number size="mini" v-model="scope.row.dishNumber" @change="handleChange(scope)" :min="1" :max="99"
+                             label="描述文字"></el-input-number>
           </template>
         </el-table-column>
         <el-table-column
@@ -83,7 +86,7 @@
         :visible.sync="deliveryVisible"
         width="850px">
         <div>
-          <el-table :data="deliveryData">
+          <el-table :data="deliveryData" height="280px">
             <el-table-column
               width="50"
               height="200px">
@@ -102,18 +105,20 @@
         <div>
           <el-form>
             <el-divider></el-divider>
-            <el-form-item label="订单备注">
-              <el-input type="textarea"></el-input>
+            <el-form-item label="订单备注" v-model="remark">
+              <el-input type="textarea" v-model="remark"></el-input>
             </el-form-item>
           </el-form>
         </div>
         <div>
-          <el-form ref="form" label-width="80px">
-            <el-form-item align="center">
-              <el-button type="primary" @click="paymentVisible = true">提交</el-button>
-              <el-button>取消</el-button>
-            </el-form-item>
-          </el-form>
+          <template>
+            <el-form ref="form" label-width="80px">
+              <el-form-item align="center">
+                <el-button type="primary" @click="createOrder()">提交</el-button>
+                <el-button>取消</el-button>
+              </el-form-item>
+            </el-form>
+          </template>
         </div>
       </el-dialog>
     </div>
@@ -129,11 +134,11 @@
             <el-radio-group v-model="radio">
               <el-radio disabled :label="1">支付宝</el-radio>
               <el-radio disabled :label="2">微信</el-radio>
-              <el-radio :label="3">一卡通（余额）：{{balance}}元</el-radio>
+              <el-radio :label="3">一卡通（余额）：{{userBalance}}元</el-radio>
             </el-radio-group>
           </template>
           <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="">付款</el-button>
+            <el-button type="primary" @click="payOrder">付款</el-button>
           </span>
         </el-dialog>
       </template>
@@ -144,94 +149,120 @@
 </template>
 
 <script>
-    export default {
+  export default {
 
-        name: "UserOrder",
-        data() {
-            return {
-                selectAdressId: -1,
-                radio: 3,
-                deliveryVisible: false,
-                paymentVisible: false,
-                clearVisible: false,
-                search: '',
-                tableData: [],
-                deliveryData: [],
-                // balance: 0,
-            }
-        },
-        computed: {
-            sumData() {
-                let sum = 0;
-                this.tableData.forEach((_) => {
-                    sum += _.price;
-                })
-                return sum
-            },
-            balance() {
-                return JSON.parse(localStorage.getItem('loginInfo')).balance
-            }
-        },
+    name: "UserOrder",
+    data() {
+      return {
+        newOrderId: 0,
+        remark: '',
+        selectAdressId: -1,
+        radio: 3,
+        deliveryVisible: false,
+        paymentVisible: false,
+        clearVisible: false,
+        search: '',
+        tableData: [],
+        deliveryData: [],
+        // balance: 0,
+      }
+    },
+    computed: {
+      sumData() {
+        let sum = 0;
+        this.tableData.forEach((_) => {
+          sum += _.price;
+        })
+        return sum
+      },
+      userBalance() {
+        return JSON.parse(localStorage.getItem('loginInfo')).balance
+      }
+    },
 
-        methods: {
-            handleClose(done) {
-                this.$confirm('确定要取消付款吗')
-                    .then(_ => {
-                        this.deliveryVisible = false;
-                        this.paymentVisible = false;
-                        done();
-                    })
-                    .catch(_ => {
-                    });
+    methods: {
+      handleClose(done) {
+        this.$confirm('确定要取消付款吗')
+          .then(_ => {
+            this.deliveryVisible = false;
+            this.paymentVisible = false;
+            done();
+          })
+          .catch(_ => {
+          });
+      },
 
-            },
-
-            queryCart() {
-                this.$axios
-                    .post('cart/price', {});
-                this.$axios
-                    .post('cart/query', {}).then((result) => {
-                    this.tableData = result.data.obj;
-                });
-
-            },
-            handleChange(scope) {
-                this.$axios
-                    .post('cart/number/update', {
-                        changeNumber: scope.row.dishNumber,
-                        dishId: scope.row.dishId,
-                    });
-                this.queryCart()
-            },
-            deleteCart(scope) {
-                this.$axios
-                    .post('cart/one/delete', {
-                        dishId: scope.row.dishId,
-                    });
-                this.queryCart()
-            },
-            clearCart() {
-                this.$axios
-                    .post('cart/all/delete', {})
-                this.clearVisible = false;
-                this.$message.success('清空购物车成功');
-                this.queryCart()
-            },
-            createOrder() {
-
-            },
-            selectDelivery() {
-                this.deliveryVisible = true;
-                this.$axios
-                    .post('delivery/info/query', {}).then((result) => {
-                    this.deliveryData = result.data.obj;
-                })
-            },
-        },
-        mounted() {
+      queryCart() {
+        this.$axios
+          .post('cart/price', {}).then(() => {
+          this.$axios
+            .post('cart/query', {}).then((result) => {
+            this.tableData = result.data.obj;
+          });
+        });
+      },
+      handleChange(scope) {
+        this.$axios
+          .post('cart/number/update', {
+            changeNumber: scope.row.dishNumber,
+            dishId: scope.row.dishId,
+          }).then(() => {
+          this.queryCart()
+        });
+      },
+      deleteCart(scope) {
+        this.$axios
+          .post('cart/one/delete', {
+            dishId: scope.row.dishId,
+          }).then(() => {
+          this.queryCart()
+        });
+      },
+      clearCart() {
+        this.$axios
+          .post('cart/all/delete', {}).then(() => {
+          this.clearVisible = false;
+          this.$message.success('清空购物车成功');
+          this.queryCart()
+        })
+      },
+      createOrder() {
+        this.$axios
+          .post('order/create', {
+            deliveryId: this.selectAdressId,
+            remark: this.remarks
+          }).then((result) => {
+          this.newOrderId = result.data.obj;
+          this.$axios
+            .post('cart/all/delete', {}).then(() => {
+            this.$message.success('下单成功');
+            this.paymentVisible = true;
             this.queryCart()
-        }
+          })
+        })
+      },
+      payOrder() {
+        this.$axios
+          .post('order/status/update', {
+            status: 1,
+            id: this.newOrderId
+          }).then(() => {
+            this.deliveryVisible = false;
+            this.paymentVisible = false;
+        })
+      },
+      selectDelivery() {
+        this.deliveryVisible = true;
+        this.$axios
+          .post('delivery/info/query', {}).then((result) => {
+          this.deliveryData = result.data.obj;
+        })
+      },
+    },
+    mounted() {
+      this.queryCart()
     }
+  }
 </script>
 
 <style scoped>
