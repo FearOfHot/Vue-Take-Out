@@ -1,17 +1,236 @@
 <template>
-<div>
   <div>
-    <el-card class="operate-container" shadow="never">
-      <i class="el-icon-shopping-cart-2"></i>
-      <span>购物车</span>
-    </el-card>
+    <div>
+      <el-card class="operate-container" shadow="never">
+        <i class="el-icon-shopping-cart-2"></i>
+        <span>购物车</span>
+      </el-card>
+    </div>
+    <div class="operate-container">
+      <el-table
+        :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+        style="width: 100%"
+        height="700">
+        <el-table-column
+          label="菜品图片"
+          prop="dishUrl"
+          width="80px">
+        </el-table-column>
+        <el-table-column
+          label="菜名"
+          prop="dishName"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          label="描述"
+          prop="dishDesc">
+        </el-table-column>
+        <el-table-column
+          label="数量（份）"
+          prop="dishNumber"
+          align="center">
+          <template slot-scope="scope">
+            <el-input-number size="mini" v-model="scope.row.dishNumber" @change="handleChange(scope)" :min="1" :max="99" label="描述文字"></el-input-number>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="价格（元）"
+          prop="price"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          align="right">
+          <template slot="header" slot-scope="scope">
+            <el-button type="danger" size="mini" @click="clearVisible = true">清空购物车</el-button>
+          </template>
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="danger"
+              @click="deleteCart(scope)">移出购物车
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <div>
+      <template>
+        <el-dialog
+          title="提示"
+          :visible.sync="clearVisible"
+          width="30%">
+          <span>确定要清空购物车吗</span>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="clearVisible = false">取 消</el-button>
+            <el-button type="danger" @click="clearCart">确 定</el-button>
+          </span>
+        </el-dialog>
+      </template>
+    </div>
+
+    <div>
+      <el-card class="bottom" shadow="never">
+        <i class="el-icon-coin"></i>
+        <span>总金额{{sumData}}</span>
+        <el-button type="primary" @click="selectDelivery">下单</el-button>
+      </el-card>
+    </div>
+
+    <div>
+      <el-dialog
+        title="选择地址"
+        :visible.sync="deliveryVisible"
+        width="850px">
+        <div>
+          <el-table :data="deliveryData">
+            <el-table-column
+              width="50"
+              height="200px">
+              <template slot-scope="scope">
+                <el-radio v-model="selectAdressId" :label="scope.row.id"></el-radio>
+              </template>
+            </el-table-column>
+            <el-table-column label="收货人" prop="name" width="100"></el-table-column>
+            <el-table-column label="电话" prop="phone" width="100"></el-table-column>
+            <el-table-column label="校区" prop="school" width="150"></el-table-column>
+            <el-table-column label="配送区域" prop="region" width="100"></el-table-column>
+            <el-table-column label="具体地址" prop="address" width="300"></el-table-column>
+            <el-divider></el-divider>
+          </el-table>
+        </div>
+        <div>
+          <el-form>
+            <el-divider></el-divider>
+            <el-form-item label="订单备注">
+              <el-input type="textarea"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div>
+          <el-form ref="form" label-width="80px">
+            <el-form-item align="center">
+              <el-button type="primary" @click="paymentVisible = true">提交</el-button>
+              <el-button>取消</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-dialog>
+    </div>
+
+    <div>
+      <template>
+        <el-dialog
+          title="请选择支付方式"
+          :visible.sync="paymentVisible"
+          width="30%"
+          :before-close="handleClose">
+          <template>
+            <el-radio-group v-model="radio">
+              <el-radio disabled :label="1">支付宝</el-radio>
+              <el-radio disabled :label="2">微信</el-radio>
+              <el-radio :label="3">一卡通（余额）：{{balance}}元</el-radio>
+            </el-radio-group>
+          </template>
+          <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="">付款</el-button>
+          </span>
+        </el-dialog>
+      </template>
+    </div>
+
+
   </div>
-</div>
 </template>
 
 <script>
     export default {
-        name: "UserCart"
+
+        name: "UserOrder",
+        data() {
+            return {
+                selectAdressId: -1,
+                radio: 3,
+                deliveryVisible: false,
+                paymentVisible: false,
+                clearVisible: false,
+                search: '',
+                tableData: [],
+                deliveryData: [],
+                // balance: 0,
+            }
+        },
+        computed: {
+            sumData() {
+                let sum = 0;
+                this.tableData.forEach((_) => {
+                    sum += _.price;
+                })
+                return sum
+            },
+            balance() {
+                return JSON.parse(localStorage.getItem('loginInfo')).balance
+            }
+        },
+
+        methods: {
+            handleClose(done) {
+                this.$confirm('确定要取消付款吗')
+                    .then(_ => {
+                        this.deliveryVisible = false;
+                        this.paymentVisible = false;
+                        done();
+                    })
+                    .catch(_ => {
+                    });
+
+            },
+
+            queryCart() {
+                this.$axios
+                    .post('cart/price', {});
+                this.$axios
+                    .post('cart/query', {}).then((result) => {
+                    this.tableData = result.data.obj;
+                });
+
+            },
+            handleChange(scope) {
+                this.$axios
+                    .post('cart/number/update', {
+                        changeNumber: scope.row.dishNumber,
+                        dishId: scope.row.dishId,
+                    });
+                this.queryCart()
+            },
+            deleteCart(scope) {
+                this.$axios
+                    .post('cart/one/delete', {
+                        dishId: scope.row.dishId,
+                    });
+                this.queryCart()
+            },
+            clearCart() {
+                this.$axios
+                    .post('cart/all/delete', {})
+                this.clearVisible = false;
+                this.$message.success('清空购物车成功');
+                this.queryCart()
+            },
+            createOrder() {
+
+            },
+            selectDelivery() {
+                this.deliveryVisible = true;
+                this.$axios
+                    .post('delivery/info/query', {}).then((result) => {
+                    this.deliveryData = result.data.obj;
+                })
+            },
+        },
+        mounted() {
+            this.queryCart()
+        }
     }
 </script>
 

@@ -1,5 +1,8 @@
 <template>
   <div>
+<!--    <div>-->
+<!--      <img src="../../../assets/dish/1.jpg">-->
+<!--    </div>-->
     <div>
       <el-card class="operate-container" shadow="never">
         <i class="el-icon-tickets"></i>
@@ -11,6 +14,11 @@
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%">
         <el-table-column
+          label="菜品图片"
+          prop="url">
+          <template slot-scope="scope"><img style="height: 80px; width: 80px" :src="scope.row.url">{{scope.row.url}} </template>
+        </el-table-column>
+        <el-table-column
           label="菜名"
           prop="name">
         </el-table-column>
@@ -19,33 +27,28 @@
           prop="desc">
         </el-table-column>
         <el-table-column
-          label="单价/元"
+          label="单价（元）"
           prop="price">
         </el-table-column>
         <el-table-column
           label="销量"
           prop="salesVolume">
         </el-table-column>
+
         <el-table-column
           align="right">
-          <template slot="header" slot-scope="scope">
-            <el-input
-              v-model="search"
-              size="mini"
-              placeholder="输入关键字搜索"/>
-          </template>
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="handleEdit(scope.$index, scope.row)">Edit
+              @click="addCart(scope)"
+              type="primary">加入购物车
             </el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)">Delete
-            </el-button>
+
+            <el-input-number size="mini" v-model="scope.row.dishNumber" @change="handleChange(scope)" :min="1" :max="99"
+                             label="描述文字"></el-input-number>
           </template>
         </el-table-column>
+
       </el-table>
     </div>
   </div>
@@ -53,10 +56,14 @@
 
 <script>
     export default {
+        search: '',
         name: "UserDish",
         data() {
             return {
-                tableData: []
+                search: '',
+                dishId: -1,
+                tableData: [],
+                cartData: [],
             }
         },
         methods: {
@@ -66,6 +73,27 @@
                     this.tableData = result.data.obj;
                 })
 
+                this.$axios
+                    .post('cart/query', {}).then((result) => {
+                    this.cartData = result.data.obj;
+                });
+
+            },
+            handleChange(scope) {
+                this.$axios
+                    .post('cart/number/update', {
+                        changeNumber: scope.row.dishNumber,
+                        dishId: scope.row.dishId,
+                    });
+                this.queryCart()
+            },
+            addCart(scope) {
+                this.$axios
+                    .post('cart/save', {
+                        dishId: scope.row.id,
+                        dishNumber: 1,
+                        price: 0,
+                    })
             }
         },
         mounted() {

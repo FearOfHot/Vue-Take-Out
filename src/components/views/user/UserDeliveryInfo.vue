@@ -53,32 +53,32 @@
 
     <div>
       <template>
-        <el-dialog title="新增配送信息" :visible.sync="addVisible">
-          <el-form :model="form">
-            <el-form-item label="收货人姓名" :label-width="formLabelWidth">
+        <el-dialog title="新增配送信息" :visible.sync="addVisible" :before-close="handleClose">
+          <el-form :model="form" :rules="rules">
+            <el-form-item prop="name" label="收货人姓名" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item label="收货人电话" :label-width="formLabelWidth">
+            <el-form-item prop="phone" label="收货人电话" :label-width="formLabelWidth">
               <el-input v-model="form.phone" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item label="校区" :label-width="formLabelWidth">
+            <el-form-item prop="school" label="校区" :label-width="formLabelWidth">
               <el-select v-model="form.school" placeholder="请选择活动区域">
                 <el-option label="杭电下沙主校区" value="杭电下沙主校区"></el-option>
                 <el-option label="杭电青山湖校区" value="杭电青山湖校区"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="配送区域" :label-width="formLabelWidth">
+            <el-form-item prop="region" label="配送区域" :label-width="formLabelWidth">
               <el-select v-model="form.region" placeholder="请选择活动区域">
                 <el-option label="教学区" value="教学区"></el-option>
                 <el-option label="生活区" value="生活区"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="具体地址" :label-width="formLabelWidth">
+            <el-form-item prop="address" label="具体地址" :label-width="formLabelWidth">
               <el-input v-model="form.address" autocomplete="off"></el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="addVisible = false">取 消</el-button>
+            <el-button @click="clearForm">取 消</el-button>
             <el-button type="primary" @click="addDeliveryInfo">确 定</el-button>
           </div>
         </el-dialog>
@@ -87,32 +87,32 @@
 
     <div>
       <template>
-        <el-dialog title="编辑配送信息" :visible.sync="editVisible">
-          <el-form :model="form">
-            <el-form-item label="收货人姓名" :label-width="formLabelWidth">
+        <el-dialog title="编辑配送信息" :visible.sync="editVisible" :before-close="handleClose">
+          <el-form :model="form" :rules="rules">
+            <el-form-item prop="name" label="收货人姓名" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item label="收货人电话" :label-width="formLabelWidth">
+            <el-form-item prop="phone" label="收货人电话" :label-width="formLabelWidth">
               <el-input v-model="form.phone" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item label="校区" :label-width="formLabelWidth">
+            <el-form-item prop="school" label="校区" :label-width="formLabelWidth">
               <el-select v-model="form.school" placeholder="请选择活动区域">
                 <el-option label="杭电下沙主校区" value="杭电下沙主校区"></el-option>
                 <el-option label="杭电青山湖校区" value="杭电青山湖校区"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="配送区域" :label-width="formLabelWidth">
+            <el-form-item prop="region" label="配送区域" :label-width="formLabelWidth">
               <el-select v-model="form.region" placeholder="请选择活动区域">
                 <el-option label="教学区" value="教学区"></el-option>
                 <el-option label="生活区" value="生活区"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="具体地址" :label-width="formLabelWidth">
+            <el-form-item prop="address" label="具体地址" :label-width="formLabelWidth">
               <el-input v-model="form.address" autocomplete="off"></el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="editVisible = false">取 消</el-button>
+            <el-button @click="clearForm">取 消</el-button>
             <el-button type="primary" @click="editDeliveryInfo">确 定</el-button>
           </div>
         </el-dialog>
@@ -127,7 +127,7 @@
           width="30%">
           <span>确定要删除这个配送地址吗</span>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="deleteVisible = false">取 消</el-button>
+            <el-button @click="clearForm">取 消</el-button>
             <el-button type="danger" @click="deleteDeliveryInfo">确 定</el-button>
           </span>
         </el-dialog>
@@ -156,10 +156,26 @@
                 editVisible: false,
                 deleteVisible: false,
                 tableData: [],
-                deleteIndex: -1
+                deleteIndex: -1,
+                rules: {
+                    name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+                    phone: [{ required: true, message: '请输入电话', trigger: 'blur' }],
+                    school: [{ required: true, message: '请输入校区', trigger: 'blur' }],
+                    region: [{ required: true, message: '请输入配送区域', trigger: 'blur' }],
+                    address: [{ required: true, message: '请输入具体地址', trigger: 'blur' }],
+                },
             }
         },
         methods: {
+            handleClose(done) {
+                this.$confirm('关闭后修改的内容不做保存,确认关闭？')
+                    .then(_ => {
+                        this.clearForm();
+                        done();
+                    })
+                    .catch(_ => {});
+
+            },
             addItem() {
               this.addVisible = true;
             },
@@ -195,6 +211,7 @@
                         address: this.form.address,
                         phone: this.form.phone
                     }).then(() => {
+                    this.$message.success('新增配送信息成功');
                         this.queryDeliveryInfo()
                 })
             },
@@ -209,6 +226,7 @@
                     address: this.form.address,
                     phone: this.form.phone
                 }).then(() => {
+                  this.$message.success('编辑配送信息成功');
                 this.queryDeliveryInfo()
               })
             },
@@ -218,9 +236,20 @@
                     .post('delivery/info/delete', {
                         id: JSON.parse(this.deleteIndex)
                     }).then(() => {
+                    this.$message.success('删除配送信息成功');
                     this.queryDeliveryInfo()
                 })
 
+            },
+            clearForm() {
+                this.deleteVisible = false;
+                this.addVisible = false;
+                this.editVisible = false;
+                this.form.name = '';
+                this.form.phone = '';
+                this.form.school = '';
+                this.form.region = '';
+                this.form.address = '';
             }
         },
         mounted() {
