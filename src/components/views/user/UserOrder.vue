@@ -32,11 +32,14 @@
           label="状态"
           prop="status">
           <template slot-scope="scope">
-            <span v-if="scope.row.status==-1">已失效</span>
-            <span v-else-if="scope.row.status==0">提交未支付</span>
-            <span v-else-if="scope.row.status==1">已付款</span>
-            <span v-else-if="scope.row.status==2">配送中</span>
-            <span v-else-if="scope.row.status==3">已完成</span>
+            <span v-if="scope.row.status==-1"><el-tag type="info">已失效</el-tag></span>
+            <span v-else-if="scope.row.status==0">
+              <el-tag type="danger">提交未支付</el-tag>
+              <el-button size="mini" type="primary" @click="getOrderInfo(scope)">支付</el-button>
+            </span>
+            <span v-else-if="scope.row.status==1"><el-tag>已付款</el-tag></span>
+            <span v-else-if="scope.row.status==2"><el-tag type="warning">配送中</el-tag></span>
+            <span v-else-if="scope.row.status==3"><el-tag type="success">已完成</el-tag></span>
           </template>
         </el-table-column>
         <el-table-column
@@ -73,8 +76,10 @@
         :visible.sync="dialogVisible"
         width="600px">
         <div>
-          <el-table :data="dishTableData" v-model="form">
-            <el-table-column label="图片" prop="dishUrl" width="200"></el-table-column>
+          <el-table :data="dishTableData" v-model="form" height="200px">
+            <el-table-column label="图片" prop="dishUrl" width="200">
+              <template slot-scope="scope"><img style="height: 60px; width: 60px" :src="scope.row.dishUrl"></template>
+            </el-table-column>
             <el-table-column label="菜名" prop="dishName" width="150"></el-table-column>
             <el-table-column label="数量" prop="dishNumber" width="100"></el-table-column>
             <el-table-column label="价格（元）" prop="price" width="100"></el-table-column>
@@ -93,11 +98,20 @@
               <el-input style="width: 400px " disabled v-model="form.address"></el-input>
             </el-form-item>
             <el-divider></el-divider>
-            <el-form-item label="订单评价">
-              <el-input :disabled="form.evaluate!=''" type="textarea" v-model="form.evaluate"></el-input>
-            </el-form-item>
+              <el-form-item label="订单评价">
+                <el-input :disabled="oneOrderEvaluate != null" type="textarea" v-model="form.evaluate"></el-input>
+              </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitItem">提交</el-button>
+              <span v-if="oneOrderStatus === '3'">
+              <el-button type="primary" @click="submitItem">提交评价</el-button>
+              </span>
+              <span v-else-if="oneOrderEvaluate != null">
+                <el-button disabled type="primary">已评价</el-button>
+              </span>
+              <span v-else>
+                <span><el-tag type="warning">订单完成后才能评价哦</el-tag></span>
+                <el-button disabled type="primary">提交评价</el-button>
+              </span>
               <el-button @click="dialogVisible = false">取消</el-button>
             </el-form-item>
           </el-form>
@@ -119,6 +133,41 @@
         </el-dialog>
       </template>
     </div>
+
+    <div>
+      <template>
+        <el-dialog
+          title="请选择支付方式"
+          :visible.sync="paymentVisible"
+          width="30%"
+          :before-close="handleClose">
+          <template>
+            <div>
+              <span><el-tag>您需要支付：{{oneOrderPrice}}元</el-tag></span>
+            </div>
+            <el-divider></el-divider>
+            <el-radio-group v-model="radio">
+              <el-radio disabled :label="1">支付宝</el-radio>
+              <el-radio disabled :label="2">微信</el-radio>
+              <span v-if="oneOrderPrice <= userBalance">
+                <el-radio :label="3">一卡通（余额）：{{userBalance}}元</el-radio>
+              </span>
+              <span v-else>
+                <el-radio :label="3" disabled>一卡通（余额）：{{userBalance}}元</el-radio>
+              </span>
+            </el-radio-group>
+          </template>
+          <span slot="footer" class="dialog-footer" v-if="oneOrderPrice <= userBalance">
+            <el-button type="primary" @click="payOrder">付款</el-button>
+          </span>
+          <span slot="footer" class="dialog-footer" v-else>
+            <el-button type="primary" @click="payOrder" disabled>付款</el-button>
+            <el-tag type="danger">饭卡余额不足请充值</el-tag>
+          </span>
+        </el-dialog>
+      </template>
+    </div>
+
 
   </div>
 </template>
@@ -156,6 +205,12 @@
                     value: '3',
                     label: '已完成'
                 }],
+                oneOrderStatus: '',
+                oneOrderEvaluate: '',
+                oneOrderPrice: 0,
+                oneOrderId: 0,
+                radio: 3,
+                paymentVisible: false,
                 evaluateVisible: false,
                 dialogVisible: false,
                 tableData: [],
@@ -163,7 +218,28 @@
                 updateIndex: -1,
             }
         },
+        computed: {
+            sumData() {
+                let sum = 0;
+                this.tableData.forEach((_) => {
+                    sum += _.price;
+                })
+                return sum
+            },
+            userBalance() {
+                return JSON.parse(localStorage.getItem('loginInfo')).balance
+            }
+        },
         methods: {
+            handleClose(done) {
+                this.$confirm('确定要取消付款吗')
+                    .then(_ => {
+                        this.paymentVisible = false;
+                        done();
+                    })
+                    .catch(_ => {
+                    });
+            },
             searchByStatus() {
                 if (this.value === '99' || this.value === '') {
                     this.$axios
@@ -181,6 +257,25 @@
                     })
                 }
             },
+            getOrderInfo(scope) {
+                this.paymentVisible = true;
+                this.oneOrderId = scope.row.id;
+                this.oneOrderPrice = scope.row.price;
+            },
+            payOrder() {
+                this.$axios
+                    .post('order/status/update', {
+                        status: 1,
+                        id: this.oneOrderId,
+                    }).then(() => {
+                    this.paymentVisible = false;
+                    this.$axios
+                        .post('user/info/get',{}).then((result) => {
+                        localStorage.setItem("loginInfo", JSON.stringify(result.data.obj));
+                        this.queryOrder();
+                    })
+                })
+            },
             queryOrder() {
                 this.$axios
                     .post('/order/query', {}).then((result) => {
@@ -189,6 +284,8 @@
 
             },
             queryOrderDetails(scope) {
+                this.oneOrderStatus = scope.row.status;
+                this.oneOrderEvaluate = scope.row.evaluate;
                 this.dishTableData = scope.row.orderDishVoList;
                 this.dialogVisible = true;
                 this.form.id = scope.row.id;

@@ -158,6 +158,7 @@
                 deleteVisible: false,
                 tableData: [],
                 deleteIndex: -1,
+                editIndex: -1,
                 rules: {
                     name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
                     phone: [{ required: true, message: '请输入电话', trigger: 'blur' }],

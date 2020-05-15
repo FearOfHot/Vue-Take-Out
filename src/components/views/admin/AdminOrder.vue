@@ -10,7 +10,8 @@
     <div class="operate-container">
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-        style="width: 100%">
+        style="width: 100%"
+        height="560px">
         <el-table-column
           label="订单编号"
           prop="number">
@@ -24,17 +25,26 @@
           prop="createTime">
         </el-table-column>
         <el-table-column
-          label="金额/元"
+          label="金额（元）"
           prop="price">
         </el-table-column>
         <el-table-column
           label="状态"
           prop="status">
+          <template slot-scope="scope">
+            <span v-if="scope.row.status==-1"><el-tag type="info">已失效</el-tag></span>
+            <span v-else-if="scope.row.status==0">
+              <el-tag type="danger">提交未支付</el-tag>
+            </span>
+            <span v-else-if="scope.row.status==1"><el-tag>已付款</el-tag></span>
+            <span v-else-if="scope.row.status==2"><el-tag type="warning">配送中</el-tag></span>
+            <span v-else-if="scope.row.status==3"><el-tag type="success">已完成</el-tag></span>
+          </template>
         </el-table-column>
-
         <el-table-column
-          align="right">
-          <template slot="header" slot-scope="scope" class="line">
+          align="right"
+          width="500">
+          <template slot="header" slot-scope="scope">
             <div>
               <el-select v-model="value" size="mini" placeholder="请选择订单状态">
                 <el-option
@@ -44,15 +54,25 @@
                   :value="item.value">
                 </el-option>
               </el-select>
-            </div>
-            <div>
-              <el-row>
-                <el-button type="primary" size="mini" icon="el-icon-search">搜索</el-button>
-              </el-row>
+              <el-button type="primary" size="mini" icon="el-icon-search" @click="searchByStatus">搜索</el-button>
             </div>
           </template>
 
           <template slot-scope="scope">
+            <span v-if="scope.row.status==1">
+              <el-button type="warning" plain size="mini" @click="sendOrder(scope)">订单已发出</el-button>
+            </span>
+            <span v-else>
+              <el-button type="warning" plain size="mini" @click="sendOrder(scope)" disabled>订单已发出</el-button>
+            </span>
+
+            <span v-if="scope.row.status==2">
+              <el-button type="success" plain size="mini" @click="finishOrder(scope)" >订单已完成</el-button>
+            </span>
+            <span v-else>
+              <el-button type="success" plain size="mini" @click="finishOrder(scope)"disabled>订单已完成</el-button>
+            </span>
+
             <el-button
               size="mini"
               @click="queryOrderDetails(scope)">订单详情
@@ -69,10 +89,13 @@
         :visible.sync="dialogVisible"
         width="600px">
         <div>
-          <el-table :data="dishTableData" v-model="form">
-            <el-table-column label="菜品" prop="dishName" width="200"></el-table-column>
-            <el-table-column label="数量" prop="dishNumber" width="157"></el-table-column>
-            <el-table-column label="价格/元" prop="price" width="200"></el-table-column>
+          <el-table :data="dishTableData" v-model="form" height="200px">
+            <el-table-column label="图片" prop="dishUrl" width="200">
+              <template slot-scope="scope"><img style="height: 60px; width: 60px" :src="scope.row.dishUrl"></template>
+            </el-table-column>
+            <el-table-column label="菜名" prop="dishName" width="150"></el-table-column>
+            <el-table-column label="数量" prop="dishNumber" width="100"></el-table-column>
+            <el-table-column label="价格（元）" prop="price" width="100"></el-table-column>
           </el-table>
         </div>
         <div>
@@ -89,26 +112,11 @@
             </el-form-item>
             <el-divider></el-divider>
             <el-form-item label="订单评价">
-              <el-input type="textarea" disabled v-model="form.evaluate"></el-input>
+              <el-input disabled type="textarea" v-model="form.evaluate"></el-input>
             </el-form-item>
           </el-form>
         </div>
       </el-dialog>
-    </div>
-
-    <div>
-      <template>
-        <el-dialog
-          title="提示"
-          :visible.sync="evaluateVisible"
-          width="30%">
-          <span>一经提交无法修改，确定要提交吗？</span>
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="evaluateVisible = false">取 消</el-button>
-            <el-button type="primary" @click="submitEvaluate">确 定</el-button>
-          </span>
-        </el-dialog>
-      </template>
     </div>
 
   </div>
@@ -129,25 +137,29 @@
                 search: '',
                 value: '',
                 options: [{
-                    value: '选项0',
+                    value: '99',
                     label: '全部订单'
                 }, {
-                    value: '选项1',
-                    label: '无效订单'
+                    value: '-1',
+                    label: '已失效'
                 }, {
-                    value: '选项2',
+                    value: '0',
                     label: '未付款'
                 }, {
-                    value: '选项3',
+                    value: '1',
                     label: '已付款'
                 }, {
-                    value: '选项4',
+                    value: '2',
                     label: '配送中'
                 }, {
-                    value: '选项5',
+                    value: '3',
                     label: '已完成'
                 }],
-                evaluateVisible: false,
+                oneOrderStatus: '',
+                oneOrderEvaluate: '',
+                oneOrderPrice: 0,
+                oneOrderId: 0,
+                radio: 3,
                 dialogVisible: false,
                 tableData: [],
                 dishTableData: [],
@@ -155,6 +167,26 @@
             }
         },
         methods: {
+            searchByStatus() {
+                if (this.value === '99' || this.value === '') {
+                    this.$axios
+                        .post('/order/all/query', {}).then((result) => {
+                        this.tableData = result.data.obj;
+                    })
+                } else {
+                    this.value;
+                    this.$axios
+                        .post('/order/all/query', {
+                            status: JSON.parse(this.value),
+                        }).then((result) => {
+                        this.tableData = result.data.obj;
+                    })
+                }
+            },
+            getOrderInfo(scope) {
+                this.oneOrderId = scope.row.id;
+                this.oneOrderPrice = scope.row.price;
+            },
             queryOrder() {
                 this.$axios
                     .post('/order/all/query', {}).then((result) => {
@@ -163,6 +195,8 @@
 
             },
             queryOrderDetails(scope) {
+                this.oneOrderStatus = scope.row.status;
+                this.oneOrderEvaluate = scope.row.evaluate;
                 this.dishTableData = scope.row.orderDishVoList;
                 this.dialogVisible = true;
                 this.form.id = scope.row.id;
@@ -171,17 +205,20 @@
                 this.form.address = scope.row.address;
                 this.form.evaluate = scope.row.evaluate;
             },
-            submitItem(){
-                this.updateIndex = this.form.id;
-                this.evaluateVisible = true;
-            },
-            submitEvaluate() {
-                this.evaluateVisible = false;
-                this.dialogVisible = false;
+            sendOrder(scope) {
                 this.$axios
-                    .post('order/evaluate/update', {
-                        evaluate: this.form.evaluate,
-                        id: JSON.parse(this.updateIndex)
+                    .post('order/status/update', {
+                        status: '2',
+                        id: scope.row.id,
+                    }).then(() => {
+                        this.queryOrder()
+                })
+            },
+            finishOrder(scope) {
+                this.$axios
+                    .post('order/status/update', {
+                        status: '3',
+                        id: scope.row.id,
                     }).then(() => {
                     this.queryOrder()
                 })
