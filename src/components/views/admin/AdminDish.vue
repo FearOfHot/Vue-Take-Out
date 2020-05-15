@@ -59,30 +59,33 @@
       <template>
         <el-dialog title="新增菜品" :visible.sync="addVisible" :before-close="handleClose" width="600px">
           <el-form :model="form" :rules="rules">
-<!--            <el-form-item>-->
-<!--              <div>-->
-<!--                <template>-->
-<!--                  <el-upload-->
-<!--                    class="upload-demo"-->
-<!--                    :on-success="handleAvatarSuccess"-->
-<!--                    action="image/upload"-->
-<!--                    :on-preview="handlePreview"-->
-<!--                    :on-remove="handleRemove"-->
-<!--                    :file-list="fileList"-->
-<!--                    list-type="picture">-->
-<!--                    <el-button size="small" type="primary">点击上传菜品图片</el-button>-->
-<!--                    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>-->
-<!--                    <img v-if="imageUrl" :src="imageUrl" class="avatar">-->
-<!--                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
-<!--                  </el-upload>-->
+            <el-form-item>
+              <div>
+                <template>
+                  <el-upload
+                    class="upload-demo"
+                    :on-success="handleAvatarSuccess"
+                    action="image/upload"
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove"
+                    :file-list="fileList"
+                    list-type="picture"
+                    multiple="false"
+                    accept=".jpg"
+                    :limit=1>
+                    <el-button size="small" type="primary">点击上传菜品图片</el-button>
+                    <div slot="tip" class="el-upload__tip">只能上传jpg文件，且不超过500kb</div>
+                    <!--<img v-if="imageUrl" :src="imageUrl" class="avatar">-->
+                    <!--<i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
+                  </el-upload>
 
-<!--                </template>-->
-<!--              </div>-->
-<!--            </el-form-item>-->
+                </template>
+              </div>
+            </el-form-item>
             <el-form-item prop="name" label="菜名" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item prop="price" label="菜品单价" :label-width="formLabelWidth">
+            <el-form-item prop="price" label="菜品单价（元）" :label-width="formLabelWidth">
               <el-input v-model="form.price" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
             <el-form-item prop="desc" label="菜品描述" :label-width="formLabelWidth">
@@ -104,7 +107,7 @@
             <el-form-item prop="name" label="菜名" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item prop="price" label="菜品单价" :label-width="formLabelWidth">
+            <el-form-item prop="price" label="菜品单价（元）" :label-width="formLabelWidth">
               <el-input v-model="form.price" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
             <el-form-item prop="desc" label="菜品描述" :label-width="formLabelWidth">
@@ -144,13 +147,14 @@
         imageUrl: '',
         data() {
             return {
-                fileList: [{}],
+                fileList: [],
                 search: '',
                 form: {
                     name: '',
                     price: 0,
                     desc: null,
                 },
+                newDishImageUrl: '',
                 dishId: -1,
                 tableData: [],
                 formLabelWidth: '120px',
@@ -176,6 +180,7 @@
                 this.imageUrl = URL.createObjectURL(file.raw);
                 console.log(res)
                 console.log(file)
+                this.newDishImageUrl = res.obj;
             },
 
             handleClose(done) {
@@ -215,6 +220,7 @@
                     .post('dish/save', {
                         name: this.form.name,
                         price: this.form.price,
+                        url: this.newDishImageUrl,
                         desc: this.form.desc,
                     }).then(() => {
                     this.$message.success('新增菜品信息成功');
@@ -249,6 +255,7 @@
 
             },
             clearForm() {
+              this.fileList = [];
                 this.deleteVisible = false;
                 this.addVisible = false;
                 this.editVisible = false;

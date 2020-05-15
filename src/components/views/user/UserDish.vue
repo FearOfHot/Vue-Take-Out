@@ -14,7 +14,7 @@
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
-        height="560px">
+        height="480">
         <el-table-column
           label="菜品图片"
           prop="url">

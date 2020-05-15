@@ -266,6 +266,7 @@
                     }).then(() => {
                     // this.deliveryVisible = false;
                     this.paymentVisible = false;
+                  this.$message.success('支付成功');
                     this.$axios
                         .post('user/info/get', {}).then((result) => {
                         localStorage.setItem("loginInfo", JSON.stringify(result.data.obj))

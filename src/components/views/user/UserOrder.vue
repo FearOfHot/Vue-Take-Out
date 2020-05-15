@@ -261,6 +261,7 @@
                 this.paymentVisible = true;
                 this.oneOrderId = scope.row.id;
                 this.oneOrderPrice = scope.row.price;
+                this.userBalance;
             },
             payOrder() {
                 this.$axios
@@ -269,10 +270,13 @@
                         id: this.oneOrderId,
                     }).then(() => {
                     this.paymentVisible = false;
+                  this.$message.success('支付成功');
                     this.$axios
                         .post('user/info/get',{}).then((result) => {
                         localStorage.setItem("loginInfo", JSON.stringify(result.data.obj));
-                        this.queryOrder();
+                      this.userBalance;
+                      this.queryOrder();
+
                     })
                 })
             },
