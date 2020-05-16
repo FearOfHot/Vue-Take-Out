@@ -17,8 +17,9 @@
         height="480">
         <el-table-column
           label="菜品图片"
-          prop="url">
-          <template slot-scope="scope"><img style="height: 80px; width: 80px" :src="scope.row.url">
+          prop="base64Url">
+          <template slot-scope="scope">
+            <img style="height: 80px; width: 80px" :src="'data:image/jpg;base64,'+scope.row.base64Url">
           </template>
         </el-table-column>
         <el-table-column
@@ -68,13 +69,11 @@
 </template>
 
 <script>
-    var img1 = require("../../../assets/dish/1.jpg");
     export default {
         search: '',
         name: "UserDish",
         data() {
             return {
-                img1: img1,
                 search: '',
                 dishId: -1,
                 tableData: [],
@@ -90,9 +89,6 @@
                         .post('cart/query', {}).then((result) => {
                         this.cartData = result.data.obj;
                         tableData.forEach((_) => {
-                            // todo 将图片转化为base64类型，使得前端可以读取
-                            _['url'] = (_.url);
-
                             _['whetherInCart'] = false;
                             _.dishNumber = 0;
                             let obj = this.cartData.find((a) => {

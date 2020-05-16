@@ -77,8 +77,8 @@
         width="600px">
         <div>
           <el-table :data="dishTableData" v-model="form" height="200px">
-            <el-table-column label="图片" prop="dishUrl" width="200">
-              <template slot-scope="scope"><img style="height: 60px; width: 60px" :src="scope.row.dishUrl"></template>
+            <el-table-column label="图片" prop="dishBase64Url" width="200">
+              <template slot-scope="scope"><img style="height: 60px; width: 60px" :src="'data:image/jpg;base64,'+scope.row.dishBase64Url"></template>
             </el-table-column>
             <el-table-column label="菜名" prop="dishName" width="150"></el-table-column>
             <el-table-column label="数量" prop="dishNumber" width="100"></el-table-column>

@@ -15,8 +15,8 @@
         height="560px">
         <el-table-column
           label="菜品图片"
-          prop="url">
-          <template slot-scope="scope"><img style="height: 80px; width: 80px" :src="scope.row.url">
+          prop="base64Url">
+          <template slot-scope="scope"><img style="height: 80px; width: 80px" :src="'data:image/jpg;base64,'+scope.row.base64Url">
           </template>
         </el-table-column>
         <el-table-column

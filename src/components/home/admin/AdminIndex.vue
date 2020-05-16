@@ -42,7 +42,7 @@
                         }
                     },
                     legend: {
-                        data: ["蒸发量", "降水量", "平均温度"]
+                        data: ['菜品总销量', '订单总金额', '平均订单金额']
                     },
                     xAxis: [
                         {
@@ -69,80 +69,43 @@
                     yAxis: [
                         {
                             type: "value",
-                            name: "水量",
+                            name: "份数",
                             min: 0,
-                            max: 250,
+                            max: 500,
                             interval: 50,
                             axisLabel: {
-                                formatter: "{value} ml"
+                                formatter: "{value} 份"
                             }
                         },
                         {
                             type: "value",
-                            name: "温度",
+                            name: "价格",
                             min: 0,
-                            max: 25,
-                            interval: 5,
+                            max: 1000,
+                            interval: 100,
                             axisLabel: {
-                                formatter: "{value} °C"
+                                formatter: "{value} RMB"
                             }
                         }
                     ],
                     series: [
                         {
-                            name: "蒸发量",
+                            name: "菜品总销量",
                             type: "bar",
-                            data: [
-                                2.0,
-                                4.9,
-                                7.0,
-                                23.2,
-                                25.6,
-                                76.7,
-                                135.6,
-                                162.2,
-                                32.6,
-                                20.0,
-                                6.4,
-                                3.3
-                            ]
+                            yAxisIndex: 0,
+                            data: []
                         },
                         {
-                            name: "降水量",
+                            name: "订单总金额",
                             type: "bar",
-                            data: [
-                                2.6,
-                                5.9,
-                                9.0,
-                                26.4,
-                                28.7,
-                                70.7,
-                                175.6,
-                                182.2,
-                                48.7,
-                                18.8,
-                                6.0,
-                                2.3
-                            ]
+                            yAxisIndex: 1,
+                            data: []
                         },
                         {
-                            name: "平均温度",
+                            name: "平均订单金额",
                             type: "line",
                             yAxisIndex: 1,
-                            data: [
-                                2.0,
-                                2.2,
-                                3.3,
-                                4.5,
-                                6.3,
-                                10.2,
-                                20.3,
-                                23.4,
-                                23.0,
-                                16.5,
-                                12.0,
-                                6.2
-                            ]
+                            data: []
                         }
                     ]
                 },
@@ -154,23 +117,42 @@
                 var myChart = echarts.init(document.getElementById("main"));
                 myChart.setOption(this.options);
 
-            }
+            },
+            queryDishData() {
+                this.$axios
+                    .post('/data/dish/number', {}).then((result) => {
+                    this.options.series[0].data = result.data.obj;
+                    this.$axios
+                        .post('/data/order/total/price', {}).then((result) => {
+                        this.options.series[1].data = result.data.obj;
+                        this.$axios
+                            .post('/data/order/average/price', {}).then((result) => {
+                            this.options.series[2].data = result.data.obj;
+                            this.paintChart();
+
+                        })
+                    })
+
+                })
+            },
         },
         mounted() {
-            setInterval(() => {
-                this.paintChart();
-                this.options.series.forEach((_, index) => {
-                    for (let i = 0; i < 12; i++) {
-                        if (index < 2 && this.showType) {
-                            _.data[i] = 200 * Math.random()
-                        } else {
-                            _.data[i] = 2 + 30 * Math.random()
-                        }
-                        this.showType = !this.showType;
+            this.queryDishData();
 
-                    }
-                })
-            }, 1000)
+            // setInterval(() => {
+            //     this.paintChart();
+            //     this.options.series.forEach((_, index) => {
+            //         for (let i = 0; i < 12; i++) {
+            //             if (index < 2 && this.showType) {
+            //                 _.data[i] = 200 * Math.random()
+            //             } else {
+            //                 _.data[i] = 2 + 30 * Math.random()
+            //             }
+            //             this.showType = !this.showType;
+            //
+            //         }
+            //     })
+            // }, 1000)
 
         }
     };
@@ -178,6 +160,5 @@
 
 <style scoped>
 </style>
-
 
 

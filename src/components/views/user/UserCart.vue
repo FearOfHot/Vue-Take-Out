@@ -13,9 +13,9 @@
         height="480">
         <el-table-column
           label="菜品图片"
-          prop="dishUrl"
+          prop="dishBase64Url"
           width="100px">
-          <template slot-scope="scope"><img style="height: 80px; width: 80px" :src="scope.row.dishUrl">{{scope.row.dishUrl}}
+          <template slot-scope="scope"><img style="height: 80px; width: 80px" :src="'data:image/jpg;base64,'+scope.row.dishBase64Url">
           </template>
         </el-table-column>
         <el-table-column

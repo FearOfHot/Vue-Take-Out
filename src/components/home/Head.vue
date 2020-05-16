@@ -15,7 +15,9 @@
                         <i class="el-icon-caret-bottom"></i>
                     </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item divided>个人信息</el-dropdown-item>
+            <span v-if="!isAdmin">
+              <el-dropdown-item divided command="userBalance">余额</el-dropdown-item>
+            </span>
             <el-dropdown-item divided command="changePassword">修改密码</el-dropdown-item>
             <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
@@ -34,13 +36,17 @@
                 collapse: false,
                 fullscreen: false,
                 name: '用户',
-                message: 2
+                message: 2,
+                isAdmin: JSON.parse(localStorage.getItem('isAdmin')),
             };
         },
         computed: {
             username() {
                 let username = JSON.parse(localStorage.getItem('loginInfo')).name;
                 return username ? username : this.name;
+            },
+            userBalance() {
+                return JSON.parse(localStorage.getItem('loginInfo')).balance
             }
         },
         methods: {
@@ -88,6 +94,10 @@
                             message: '取消修改'
                         });
                     });
+                } else if (command == 'userBalance') {
+                    this.$confirm('您的一卡通余额为：' + this.userBalance + '元', '提示', {
+                        confirmButtonText: '确定',
+                    })
                 }
             },
         },
