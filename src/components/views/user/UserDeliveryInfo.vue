@@ -9,6 +9,8 @@
 
     <div class="operate-container">
       <el-table
+        v-loading="loading"
+        element-loading-text="拼命加载中"
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
         height="560px">
@@ -80,7 +82,12 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="clearForm">取 消</el-button>
-            <el-button type="primary" @click="addDeliveryInfo">确 定</el-button>
+            <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.phone"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.school"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.region"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.address"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else><el-button type="primary" @click="addDeliveryInfo">确 定</el-button></span>
           </div>
         </el-dialog>
       </template>
@@ -114,7 +121,12 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="clearForm">取 消</el-button>
-            <el-button type="primary" @click="editDeliveryInfo">确 定</el-button>
+            <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.phone"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.school"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.region"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.address"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else><el-button type="primary" @click="addDeliveryInfo">确 定</el-button></span>
           </div>
         </el-dialog>
       </template>
@@ -144,6 +156,7 @@
         name: "UserDeliveryInfo",
         data() {
             return {
+                loading: true,
                 search:'',
                 form: {
                     name: '',
@@ -200,6 +213,7 @@
                         userId: JSON.parse(localStorage.getItem('loginInfo')).id
                     }).then((result) => {
                     this.tableData = result.data.obj;
+                    this.loading = false;
                 })
 
             },

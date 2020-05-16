@@ -12,7 +12,9 @@
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
-        height="560px">
+        height="560px"
+        v-loading="loading"
+        element-loading-text="拼命加载中">
         <el-table-column
           label="菜品图片"
           prop="base64Url">
@@ -85,7 +87,7 @@
             <el-form-item prop="name" label="菜名" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item prop="price" label="菜品单价（元）" :label-width="formLabelWidth">
+            <el-form-item prop="price" label="单价（元）" :label-width="formLabelWidth">
               <el-input v-model="form.price" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
             <el-form-item prop="desc" label="菜品描述" :label-width="formLabelWidth">
@@ -94,7 +96,9 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="clearForm">取 消</el-button>
-            <el-button type="primary" @click="addDish">确 定</el-button>
+            <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.price"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else><el-button type="primary" @click="addDish">确 定</el-button></span>
           </div>
         </el-dialog>
       </template>
@@ -107,7 +111,7 @@
             <el-form-item prop="name" label="菜名" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
-            <el-form-item prop="price" label="菜品单价（元）" :label-width="formLabelWidth">
+            <el-form-item prop="price" label="单价（元）" :label-width="formLabelWidth">
               <el-input v-model="form.price" autocomplete="off" style="width:130px;"></el-input>
             </el-form-item>
             <el-form-item prop="desc" label="菜品描述" :label-width="formLabelWidth">
@@ -116,7 +120,9 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="clearForm">取 消</el-button>
-            <el-button type="primary" @click="editDish">确 定</el-button>
+            <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else-if="!form.price"><el-button type="primary" disabled>确 定</el-button></span>
+            <span v-else><el-button type="primary" @click="addDish">确 定</el-button></span>
           </div>
         </el-dialog>
       </template>
@@ -147,6 +153,7 @@
         imageUrl: '',
         data() {
             return {
+                loading: true,
                 fileList: [],
                 search: '',
                 form: {
@@ -211,6 +218,7 @@
                 this.$axios
                     .post('dish/query', {}).then((result) => {
                     this.tableData = result.data.obj;
+                    this.loading = false;
                 })
 
             },

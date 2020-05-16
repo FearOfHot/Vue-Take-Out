@@ -14,7 +14,9 @@
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
-        height="480">
+        height="480"
+        v-loading="loading"
+        element-loading-text="拼命加载中">
         <el-table-column
           label="菜品图片"
           prop="base64Url">
@@ -58,7 +60,7 @@
     </div>
 
     <div>
-      <template v-if="cartData != []">
+      <template v-if="cartData != ''">
         <el-card class="bottom" shadow="never">
           <i class="el-icon-shopping-cart-full"></i>
           <el-button type="primary" @click="goToPay">我要结账</el-button>
@@ -74,6 +76,7 @@
         name: "UserDish",
         data() {
             return {
+                loading: true,
                 search: '',
                 dishId: -1,
                 tableData: [],
@@ -99,7 +102,8 @@
                                 _.dishNumber = obj.dishNumber;
                             }
                         });
-                        this.tableData = tableData
+                        this.tableData = tableData;
+                        this.loading = false;
                     });
                 })
 

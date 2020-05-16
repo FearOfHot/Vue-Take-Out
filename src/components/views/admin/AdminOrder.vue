@@ -11,7 +11,9 @@
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
-        height="560px">
+        height="560px"
+        v-loading="loading"
+        element-loading-text="拼命加载中">
         <el-table-column
           label="订单编号"
           prop="number">
@@ -127,6 +129,7 @@
         name: "UserOrder",
         data() {
             return {
+                loading: true,
                 form: {
                     id: '',
                     name: '',
@@ -191,6 +194,7 @@
                 this.$axios
                     .post('/order/all/query', {}).then((result) => {
                     this.tableData = result.data.obj;
+                    this.loading = false;
                 })
 
             },

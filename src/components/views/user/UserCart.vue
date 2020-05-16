@@ -10,7 +10,9 @@
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
-        height="480">
+        height="480"
+        v-loading="loading"
+        element-loading-text="拼命加载中">
         <el-table-column
           label="菜品图片"
           prop="dishBase64Url"
@@ -93,7 +95,9 @@
               width="50"
               height="200px">
               <template slot-scope="scope">
-                <el-radio v-model="selectAdressId" :label="scope.row.id"></el-radio>
+                <el-radio v-model="selectAdressId" :label="scope.row.id">
+                  <span></span>
+                </el-radio>
               </template>
             </el-table-column>
             <el-table-column label="收货人" prop="name" width="100"></el-table-column>
@@ -116,8 +120,9 @@
           <template>
             <el-form ref="form" label-width="80px">
               <el-form-item align="center">
-                <el-button type="primary" @click="createOrder()">提交</el-button>
-                <el-button>取消</el-button>
+                <span v-if="selectAdressId == -1"><el-button type="primary" disabled>提交</el-button></span>
+                <span v-else><el-button type="primary" @click="createOrder()">提交</el-button></span>
+                <el-button @click="deliveryVisible = false">取消</el-button>
               </el-form-item>
             </el-form>
           </template>
@@ -168,6 +173,7 @@
         name: "UserOrder",
         data() {
             return {
+                loading: true,
                 orderPrice: 0,
                 newOrderId: 0,
                 remark: '',
@@ -213,6 +219,7 @@
                     this.$axios
                         .post('cart/query', {}).then((result) => {
                         this.tableData = result.data.obj;
+                        this.loading = false;
                     });
                 });
             },

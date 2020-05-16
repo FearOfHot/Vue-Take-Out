@@ -11,7 +11,9 @@
       <el-table
         :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
-        height="560px">
+        height="560px"
+        v-loading="loading"
+        element-loading-text="拼命加载中">
         <el-table-column
           label="订单编号"
           prop="number">
@@ -161,7 +163,7 @@
             <el-button type="primary" @click="payOrder">付款</el-button>
           </span>
           <span slot="footer" class="dialog-footer" v-else>
-            <el-button type="primary" @click="payOrder" disabled>付款</el-button>
+            <el-button type="primary" disabled>付款</el-button>
             <el-tag type="danger">饭卡余额不足请充值</el-tag>
           </span>
         </el-dialog>
@@ -177,6 +179,7 @@
         name: "UserOrder",
         data() {
             return {
+                loading: true,
                 form: {
                     id: '',
                     name: '',
@@ -216,6 +219,7 @@
                 tableData: [],
                 dishTableData: [],
                 updateIndex: -1,
+                loginInfo:JSON.parse(localStorage.getItem('loginInfo'))
             }
         },
         computed: {
@@ -227,7 +231,7 @@
                 return sum
             },
             userBalance() {
-                return JSON.parse(localStorage.getItem('loginInfo')).balance
+                return this.loginInfo.balance
             }
         },
         methods: {
@@ -258,10 +262,10 @@
                 }
             },
             getOrderInfo(scope) {
+                // this.userBalance;
                 this.paymentVisible = true;
                 this.oneOrderId = scope.row.id;
                 this.oneOrderPrice = scope.row.price;
-                this.userBalance;
             },
             payOrder() {
                 this.$axios
@@ -270,12 +274,13 @@
                         id: this.oneOrderId,
                     }).then(() => {
                     this.paymentVisible = false;
-                  this.$message.success('支付成功');
+                    this.$message.success('支付成功');
                     this.$axios
                         .post('user/info/get',{}).then((result) => {
                         localStorage.setItem("loginInfo", JSON.stringify(result.data.obj));
-                      this.userBalance;
-                      this.queryOrder();
+                        // this.userBalance;
+                        this.loginInfo=result.data.obj;
+                        this.queryOrder();
 
                     })
                 })
@@ -284,6 +289,7 @@
                 this.$axios
                     .post('/order/query', {}).then((result) => {
                     this.tableData = result.data.obj;
+                    this.loading = false;
                 })
 
             },
