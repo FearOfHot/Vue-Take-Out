@@ -105,11 +105,14 @@
               </el-form-item>
             <el-form-item>
               <span v-if="oneOrderStatus === '3'">
-              <el-button type="primary" @click="submitItem">提交评价</el-button>
+                <span v-if="oneOrderEvaluate === null">
+                  <el-button type="primary" @click="submitItem">提交评价</el-button>
+                </span>
+                <span v-else>
+                  <el-button disabled type="primary">已评价</el-button>
+                </span>
               </span>
-              <span v-else-if="oneOrderEvaluate != null">
-                <el-button disabled type="primary">已评价</el-button>
-              </span>
+
               <span v-else>
                 <span><el-tag type="warning">订单完成后才能评价哦</el-tag></span>
                 <el-button disabled type="primary">提交评价</el-button>
