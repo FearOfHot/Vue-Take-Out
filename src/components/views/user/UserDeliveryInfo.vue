@@ -81,7 +81,7 @@
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="clearForm">取 消</el-button>
+            <el-button @click="handleClose">取 消</el-button>
             <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.phone"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.school"><el-button type="primary" disabled>确 定</el-button></span>
@@ -120,13 +120,13 @@
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="clearForm">取 消</el-button>
+            <el-button @click="handleClose">取 消</el-button>
             <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.phone"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.school"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.region"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.address"><el-button type="primary" disabled>确 定</el-button></span>
-            <span v-else><el-button type="primary" @click="addDeliveryInfo">确 定</el-button></span>
+            <span v-else><el-button type="primary" @click="editDeliveryInfo">确 定</el-button></span>
           </div>
         </el-dialog>
       </template>

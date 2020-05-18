@@ -95,7 +95,7 @@
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="clearForm">取 消</el-button>
+            <el-button @click="handleClose">取 消</el-button>
             <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.price"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else><el-button type="primary" @click="addDish">确 定</el-button></span>
@@ -119,7 +119,7 @@
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="clearForm">取 消</el-button>
+            <el-button @click="handleClose">取 消</el-button>
             <span v-if="!form.name"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else-if="!form.price"><el-button type="primary" disabled>确 定</el-button></span>
             <span v-else><el-button type="primary" @click="addDish">确 定</el-button></span>
@@ -159,7 +159,7 @@
                 form: {
                     name: '',
                     price: 0,
-                    desc: null,
+                    desc: '',
                 },
                 newDishImageUrl: '',
                 dishId: -1,

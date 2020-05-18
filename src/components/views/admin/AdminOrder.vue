@@ -215,6 +215,7 @@
                         status: '2',
                         id: scope.row.id,
                     }).then(() => {
+                    this.$message.success('订单成功发出');
                         this.queryOrder()
                 })
             },
@@ -224,6 +225,7 @@
                         status: '3',
                         id: scope.row.id,
                     }).then(() => {
+                    this.$message.success('订单成功完成');
                     this.queryOrder()
                 })
             }
