@@ -143,8 +143,8 @@
             </div>
             <el-divider></el-divider>
             <el-radio-group v-model="radio">
-              <el-radio disabled :label="1">支付宝</el-radio>
-              <el-radio disabled :label="2">微信</el-radio>
+              <!--<el-radio disabled :label="1">支付宝</el-radio>-->
+              <!--<el-radio disabled :label="2">微信</el-radio>-->
               <span v-if="orderPrice <= userBalance">
                 <el-radio :label="3">一卡通（余额）：{{userBalance}}元</el-radio>
               </span>
@@ -153,10 +153,14 @@
               </span>
             </el-radio-group>
           </template>
-          <span slot="footer" class="dialog-footer" v-if="orderPrice <= userBalance">
+          <el-divider></el-divider>
+          <span>
+            <el-button type="primary" @click="alipayOrder">支付宝付款</el-button>
+          </span>
+          <span v-if="orderPrice <= userBalance">
             <el-button type="primary" @click="payOrder">付款</el-button>
           </span>
-          <span slot="footer" class="dialog-footer" v-else>
+          <span v-else>
             <el-button type="primary" @click="payOrder" disabled>付款</el-button>
             <el-tag type="danger">饭卡余额不足请充值</el-tag>
           </span>
@@ -273,10 +277,45 @@
                     }).then(() => {
                     // this.deliveryVisible = false;
                     this.paymentVisible = false;
-                  this.$message.success('支付成功');
+                    this.$message.success('支付成功');
                     this.$axios
                         .post('user/info/get', {}).then((result) => {
                         localStorage.setItem("loginInfo", JSON.stringify(result.data.obj))
+                    })
+                })
+            },
+            alipayOrder() {
+                this.$axios
+                    .post('alipay/payment', {
+                      out_trade_no: this.newOrderId + '',
+                      subject: '食堂外卖',
+                      total_amount: this.orderPrice + '',
+                      body: '',
+                }).then((resp) => {
+                    // 添加之前先删除一下，如果单页面，页面不刷新，添加进去的内容会一直保留在页面中，二次调用form表单会出错
+                    const divForm = document.getElementsByTagName('div')
+                    if (divForm.length) {
+                      document.body.removeChild(divForm[0])
+                    }
+                    const div = document.createElement('div')
+                    div.innerHTML = resp.data // data就是接口返回的form 表单字符串
+                    document.body.appendChild(div)
+                    document.forms[0].setAttribute('target', '_blank') // 新开窗口跳转
+                    document.forms[0].submit()
+                    this.$axios
+                      .post('order/status/update', {
+                        status: 1,
+                        id: this.newOrderId,
+                      }).then(() => {
+                      this.paymentVisible = false;
+                      this.$message.success('支付成功');
+                      this.$axios
+                        .post('user/info/get',{}).then((result) => {
+                        localStorage.setItem("loginInfo", JSON.stringify(result.data.obj));
+                        // this.userBalance;
+                        this.loginInfo=result.data.obj;
+                        this.queryOrder();
+                      })
                     })
                 })
             },
