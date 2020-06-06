@@ -58,7 +58,7 @@
                 items: [
                     {
                         icon: 'el-icon-lx-home',
-                        index: 'index',
+                        index: 'indexUser',
                         title: '首页'
                     },
                     {

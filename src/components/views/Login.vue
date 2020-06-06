@@ -55,7 +55,7 @@
                                     localStorage.setItem('isAdmin', successResponse.data.obj.admin);
                                     localStorage.setItem('loginInfo', JSON.stringify(successResponse.data.obj));
                                     this.$message.success('登录成功');
-                                    this.$router.push('index')
+                                    this.$router.push('indexUser')
                                     // var path = this.$route.query.redirect
                                     // this.$router.replace({path: path === '/' || path === undefined ? '/index' : path})
                                 } else {

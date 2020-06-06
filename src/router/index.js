@@ -81,6 +81,14 @@ export default new Router({
         requireAuth: true
       }
     },
+    {
+      path: '/indexUser',
+      name: 'indexUser',
+      component: UserIndex,
+      meta: {
+        requireAuth: true
+      }
+    },
   ]
 })
 
