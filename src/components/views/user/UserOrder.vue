@@ -299,6 +299,7 @@
                         total_amount: this.oneOrderPrice + '',
                         body: '',
                     }).then((resp) => {
+
                         // 添加之前先删除一下，如果单页面，页面不刷新，添加进去的内容会一直保留在页面中，二次调用form表单会出错
                         const divForm = document.getElementsByTagName('div')
                         if (divForm.length) {
@@ -313,17 +314,7 @@
                             .post('order/status/update', {
                               status: 1,
                               id: this.oneOrderId,
-                            }).then(() => {
-                              this.paymentVisible = false;
-                              this.$message.success('支付成功');
-                              this.$axios
-                                .post('user/info/get',{}).then((result) => {
-                                localStorage.setItem("loginInfo", JSON.stringify(result.data.obj));
-                                // this.userBalance;
-                                this.loginInfo=result.data.obj;
-                                this.queryOrder();
-                          })
-                        })
+                            })
                   })
             },
             queryOrder() {

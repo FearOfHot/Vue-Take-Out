@@ -306,17 +306,7 @@
                       .post('order/status/update', {
                         status: 1,
                         id: this.newOrderId,
-                      }).then(() => {
-                      this.paymentVisible = false;
-                      this.$message.success('支付成功');
-                      this.$axios
-                        .post('user/info/get',{}).then((result) => {
-                        localStorage.setItem("loginInfo", JSON.stringify(result.data.obj));
-                        // this.userBalance;
-                        this.loginInfo=result.data.obj;
-                        this.queryOrder();
                       })
-                    })
                 })
             },
             selectDelivery() {
